@@ -106,7 +106,7 @@ void key_press_screen(){
 		//	если сейчас проводится измерение, то выводим сводку по измерениям
 		set_hrm_mode(0);
 		set_update_period(0, 0);
-		app_data->menu_stage = 3;
+		app_data->menu_stage = 4;
 		show_menu_animate(menu, 0, ANIMATE_LEFT);
 	} else {
 		//	если запуск был из быстрого меню, при нажатии кнопки выходим на циферблат
@@ -132,7 +132,7 @@ switch (gest->gesture){
 	case GESTURE_CLICK: {		
 			if (app_data->menu_is_on == 1){
 				//	увеличение или уменьшение значений на экранах настройки
-				if (app_data->menu_stage == 0){
+				if (app_data->menu_stage == 1){
 					if ((gest->touch_pos_x >= 20 && gest->touch_pos_x <= 70) && (gest->touch_pos_y >= 55 && gest->touch_pos_y <= 105)){
 						app_data->pix_per_rec = app_data->pix_per_rec - 5;
 						if (app_data->pix_per_rec < 5){
@@ -157,7 +157,7 @@ switch (gest->gesture){
 						show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y, 2);
 						repaint_screen_lines(FIRST_MENU_BIG_DIGITS_COORD_Y, FIRST_MENU_BIG_DIGITS_COORD_Y + 50);
 					}
-				} else if (app_data->menu_stage == 1){
+				} else if (app_data->menu_stage == 2){
 					if ((gest->touch_pos_x >= 20 && gest->touch_pos_x <= 70) && (gest->touch_pos_y >= 55 + 30 && gest->touch_pos_y <= 105 + 30)){
 						app_data->seconds_between_rec = app_data->seconds_between_rec - 1;
 						if (app_data->seconds_between_rec < 0){
@@ -182,7 +182,7 @@ switch (gest->gesture){
 						show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y +30, 2);
 						repaint_screen_lines(FIRST_MENU_BIG_DIGITS_COORD_Y + 30, FIRST_MENU_BIG_DIGITS_COORD_Y + 50 + 30);
 					}
-				} else if (app_data->menu_stage == 2){
+				} else if (app_data->menu_stage == 3){
 					if ((gest->touch_pos_x >= 20 && gest->touch_pos_x <= 70) && (gest->touch_pos_y >= 55 + 20 && gest->touch_pos_y <= 105 + 20)){
 						app_data->minutes_for_rec = app_data->minutes_for_rec - 1;
 						if (app_data->minutes_for_rec < 0){
@@ -210,10 +210,20 @@ switch (gest->gesture){
 				}
 				//	обработка нажатия на нижнюю часть экрана в экранах настройки
 				if (gest->touch_pos_y >= 135 && gest->touch_pos_y <= 176){
-					if (app_data->menu_stage == 2){
+					if (app_data->menu_stage == 0){
+						if (gest->touch_pos_x >= 0 && gest->touch_pos_x < 88){
+							set_backlight_state(0);
+							app_data->menu_stage = app_data->menu_stage + 1;
+							show_menu_animate(menu, 0, ANIMATE_LEFT);
+						} else if (gest->touch_pos_x > 88 && gest->touch_pos_x <= 176){
+							set_backlight_state(1);
+							app_data->menu_stage = app_data->menu_stage + 1;
+							show_menu_animate(menu, 0, ANIMATE_LEFT);
+						}
+					} else if (app_data->menu_stage == 3){
 						app_data->menu_is_on = 0;
 						show_menu_animate(first_draw, 0, ANIMATE_LEFT);
-					} else if (app_data->menu_stage == 3){
+					} else if (app_data->menu_stage == 4){
 						//	если запуск был из быстрого меню, при нажатии кнопки выходим на циферблат
 						if ( get_left_side_menu_active() ) 		
 						    app_data->proc->ret_f = show_watchface;
@@ -305,6 +315,16 @@ void menu(){	//	 функция рисования экранов настрой
 	fill_screen_bg();	//	заполняем экран этим цветом
 
 	if (app_data->menu_stage == 0){
+		text_out_center("Включить подсветку?", 88, 65);
+
+		set_fg_color(COLOR_RED);
+		draw_filled_rect(0, 136, 88, 176);
+		show_res_by_id(ICON_CANCEL_RED, 37, 149);
+
+		set_fg_color(COLOR_GREEN);
+		draw_filled_rect(88, 136, 176, 176);
+		show_res_by_id(ICON_OK_GREEN, 125, 149);
+	} else if (app_data->menu_stage == 1){
 		char text[10];
 		_sprintf(text, "%d", app_data->pix_per_rec);
 		show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y, 2);
@@ -314,20 +334,25 @@ void menu(){	//	 функция рисования экранов настрой
 	
 		text_out_center("Кол-во пикселей", 88, 5);
 		text_out_center("на одну запись", 88, get_text_height() + 6);
-	} else if (app_data->menu_stage == 1){
+
+		set_fg_color(COLOR_AQUA);
+		draw_filled_rect(0, 136, 176, 176);
+		show_res_by_id(317, 147, 147);
+	} else if (app_data->menu_stage == 2){
 		char text[10];
 		_sprintf(text, "%d", app_data->seconds_between_rec);
-		show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y + 30, 2);
+		show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y, 2);
 	
-		show_elf_res_by_id(app_data->proc->index_listed, 1, 30, 65 + 30);
-		show_elf_res_by_id(app_data->proc->index_listed, 0, 110, 65 + 30);
+		show_elf_res_by_id(app_data->proc->index_listed, 1, 30, 65);
+		show_elf_res_by_id(app_data->proc->index_listed, 0, 110, 65);
 	
 		text_out_center("Задержка между", 88, 5);
 		text_out_center("измерениями (сек.)", 88, get_text_height() + 6);
-		text_out_center("0-задержка зависит", 88, 2 * get_text_height() + 6);
-		text_out_center("от скорости", 88, 3 * get_text_height() + 6);
-		text_out_center("измерения", 88, 4 * get_text_height() + 6);
-	} else if (app_data->menu_stage == 2){
+
+		set_fg_color(COLOR_AQUA);
+		draw_filled_rect(0, 136, 176, 176);
+		show_res_by_id(317, 147, 147);
+	} else if (app_data->menu_stage == 3){
 		char text[10];
 		_sprintf(text, "%d", app_data->minutes_for_rec);
 		show_big_digit(3, text, FIRST_MENU_BIG_DIGITS_COORD_X, FIRST_MENU_BIG_DIGITS_COORD_Y + 20, 2);
@@ -338,7 +363,11 @@ void menu(){	//	 функция рисования экранов настрой
 		text_out_center("Общее время", 88, 5);
 		text_out_center("измерения (мин.)", 88, get_text_height() + 6);
 		text_out_center("0-нет ограничения", 88, 2 * get_text_height() + 6);
-	} else if (app_data->menu_stage == 3){
+
+		set_fg_color(COLOR_AQUA);
+		draw_filled_rect(0, 136, 176, 176);
+		show_res_by_id(317, 147, 147);
+	} else if (app_data->menu_stage == 4){
 		text_out_center("Сводка по", 88, 5);
 		text_out_center("измерениям", 88, get_text_height() + 5);
 		text_out_center("MIN", (text_width("MIN") / 2) + 15, 2 * get_text_height() + 10);
@@ -356,12 +385,11 @@ void menu(){	//	 функция рисования экранов настрой
 		char avg[10];
 		_sprintf(avg, "%d", find_avg());
 		show_big_digit(3, avg, 63, 3 * get_text_height() + 15, 2);
+		
+		set_fg_color(COLOR_AQUA);
+		draw_filled_rect(0, 136, 176, 176);
+		show_res_by_id(317, 147, 147);
 	}
-
-	set_fg_color(COLOR_AQUA);
-	draw_filled_rect(0, 136, 176, 176);
-
-	show_res_by_id(317, 147, 147);
 }
 
 void first_draw(){	//	функция начальной отрисовки элементов экрана измерения
@@ -573,6 +601,7 @@ switch (app_data->status){	//	обрабатываем состояния дат
 
 		set_hrm_mode(0); 	//	отключаем пульсометр для экономии батареи (не работает с задержкой 0 - 10 секунд)
 		//	выводим на экран минимальное и максимальное значения пульса
+		draw_filled_rect_bg(STATS_COORD_X, STATS_COORD_Y, STATS_COORD_X + text_width("min:160"), STATS_COORD_Y + 2 * get_text_height());
 		char min[10];
 		_sprintf(min, "%s%d", "min:", find_min());
 		text_out(min, STATS_COORD_X, STATS_COORD_Y);
@@ -620,7 +649,7 @@ repaint_screen_lines(0,176);	//	обновляем экран
 if (app_data->curr_time >= app_data->minutes_for_rec * 60000 && app_data->minutes_for_rec != 0){
 	set_hrm_mode(0);
 	set_update_period(0, 0);
-	app_data->menu_stage = 3;
+	app_data->menu_stage = 4;
 	show_menu_animate(menu, 0, ANIMATE_LEFT);
 }
 
