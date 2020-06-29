@@ -653,5 +653,11 @@ if (app_data->curr_time >= app_data->minutes_for_rec * 60000 && app_data->minute
 	show_menu_animate(menu, 0, ANIMATE_LEFT);
 }
 
+if (app_data->rec_counter == 1000){
+	set_hrm_mode(0);
+	set_update_period(0, 0);
+	app_data->menu_stage = 4;
+	show_menu_animate(menu, 0, ANIMATE_LEFT);
+}
 return 0;
 }
