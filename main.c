@@ -667,7 +667,7 @@ switch (app_data->status){	//	обрабатываем состояния дат
 
 		set_hrm_mode(0); 	//	отключаем пульсометр для экономии батареи (не работает с задержкой 0 - 10 секунд)
 		//	выводим на экран минимальное и максимальное значения пульса
-		draw_filled_rect_bg(STATS_COORD_X, STATS_COORD_Y, STATS_COORD_X + text_width("max:160"), STATS_COORD_Y + 2 * get_text_height());
+		draw_filled_rect_bg(STATS_COORD_X, STATS_COORD_Y, STATS_COORD_X + text_width("max:160"), 2 * STATS_COORD_Y + get_text_height());
 		char max[10];
 		_sprintf(max, "%s%d", "max:", find_max());
 		text_out(max, STATS_COORD_X, STATS_COORD_Y);
