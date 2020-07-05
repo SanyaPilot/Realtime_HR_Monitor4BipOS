@@ -7,8 +7,8 @@
 */
 
 /*
-	Real time heart rate monitor for Amazfit Bip BipOS V1
-	(C) Alexander Baransky (Sanya pilot) 24.06.2020 <alexander.baranskiy@yandex.ru>
+	Real time heart rate monitor for Amazfit Bip BipOS V2.0
+	(C) Alexander Baransky (Sanya pilot) 05.07.2020 <alexander.baranskiy@yandex.ru>
 
 	Монитор сердечного ритма в реальном времени, заголовочный файл
 */
@@ -44,12 +44,20 @@ struct app_data_ {
 					rec_counter,			//	счетчик записей
 					rec_counter_per_screen,	//	счетчик записей для рисования горизонтальных линий
 					anim_counter,			//	счетчик для анимации
-					seconds_between_rec,	//	задержка между измерениями в миллисекундах
+					seconds_between_rec,	//	задержка между измерениями в секундах
 					minutes_for_rec,		//	ограничение по времени работы в минутах
+					backlight,				//	включена ли подсветка или нет
 					curr_update_period,		//	текущее время обновления экрана
 					records[1000];			//	массив записей
 			long	curr_time;				//	текущее время
  			Elf_proc_* proc;				//	указатель на данные процесса
+};
+
+struct settings_ {
+			int		pix_per_rec,			//	количество пикселей на одну запись
+					seconds_between_rec,	//	задержка между измерениями в секундах
+					minutes_for_rec,		//	ограничение по времени работы в минутах
+					backlight;				//	включена ли подсветка или нет
 };
 
 void 	show_screen (void *return_screen);
@@ -64,4 +72,5 @@ void	draw_scale();
 int		find_min();
 int		find_max();
 int		find_avg();
+void	update_settings();
 #endif

@@ -1,2 +1,2 @@
-﻿HR monitor
+﻿HR Monitor
 RU	Монитор пульса

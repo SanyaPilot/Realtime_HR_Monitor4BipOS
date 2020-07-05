@@ -10,6 +10,7 @@
 	
 :: Путь к компилятору
 @SET BASE_PATH=d:\Dev\AmazfitBip_FW\soft\Patch\GNUArmEmbeddedGCC
+::@SET LIB_GCC="!BASE_PATH!\lib\gcc\arm-none-eabi\8.2.1\thumb\v7e-m+fp\hard\libgcc.a"  
 @SET LIBRARY_PATH="!BASE_PATH!\arm-none-eabi\lib\thumb\v7e-m+fp\hard"
 @SET LD_OPT=-lm -lc
 @SET GCC_OPT=-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-math-errno 
@@ -68,14 +69,21 @@ SET LABEL = %PROGRAM_NAME%
 @call :echoColor 0B "Итого: "
 @call :echoColor 0E "%n%" 1
 
-@call :echoColor 0B "Сборка..."
+@call :echoColor 0B "Сборка:"
+@call :echoColor 07 "	...создание elf файла"	1
 %LD% -Map %PARTNAME%.map -o %PROGRAM_NAME%.elf %FILES_TO_COMPILE% %LD_OPT% %LIB_BIP%
 @if errorlevel 1 goto :error
-::@call :echoColor 0B "."
 
 if exist label.txt (
+@call :echoColor 07 "	...название"	1
 %OBJCOPY%  %PROGRAM_NAME%.elf --add-section .elf.label=label.txt
 )
+
+@call :EchoN "%PROGRAM_NAME%" > name.txt
+@call :echoColor 07 "	...elf_name"	1
+%OBJCOPY%  %PROGRAM_NAME%.elf --add-section .elf.name=name.txt
+if exist name.txt del name.txt
+@if errorlevel 1 goto :error
 
 if exist asset.res (
 @call :echoColor 07 "	...ресурсы"	1
@@ -86,14 +94,8 @@ if exist settings.bin (
 %OBJCOPY%  %PROGRAM_NAME%.elf --add-section .elf.settings=settings.bin
 )
 
-@call :EchoN "%PROGRAM_NAME%%" > name.txt
-%OBJCOPY%  %PROGRAM_NAME%.elf --add-section .elf.name=name.txt
-if exist name.txt del name.txt
-@if errorlevel 1 goto :error
 
-::@call :echoColor 0B "."
-
-@call :echoColor 0A "OK" 1
+@call :echoColor 0A "...OK" 1
 @call :echoColor 0B "Сборка окончена." 1
 
 :done_
